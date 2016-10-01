@@ -5,8 +5,8 @@ Web App to show off functionalities of the symbIoTe ecosystem.
 
 ### Screenshots:
 
-![Screenshot 1](http://imgur.com/rrvl7w7)
+[Imgur](http://i.imgur.com/rrvl7w7.png)
 
-![Screenshot 2](http://imgur.com/8dOYJbv)
+[Imgur](http://i.imgur.com/8dOYJbv.png)
 
-![Screenshot 3](http://imgur.com/E4kGXbq)
+[Imgur](http://i.imgur.com/E4kGXbq.png)
