@@ -6,6 +6,8 @@ var ids = Array();
 var units = Array();
 var coordinates = Array();
 
+var properties = {1:'SO2', 5:'PM10', 7:'O3', 8:'NO2', 10:'CO', 38:'NO', 6001:'PM2.5', };
+
 $(window).resize(function() {
   sizeLayerControl();
 });
@@ -131,7 +133,11 @@ function handleClickRow(e){
 
   $("#loading").show();
 
-  var url = 'http://enviro5.ait.ac.at:8080/openUwedat-oData/DemoService.svc/Sensors(%27'+e.target.parentNode.id+'%27)/Observations?%24format=json';
+  // console.log(e.target.parentNode.getAttribute('url'));
+
+  // var url = 'http://enviro5.ait.ac.at:8080/openUwedat-oData/DemoService.svc/Sensors(%27'+e.target.parentNode.id+'%27)/Observations?%24format=json';
+
+  var url = e.target.parentNode.getAttribute('url');
   $.ajax({
         url: url,
         type: "GET",
@@ -148,22 +154,26 @@ function handleClickRow(e){
             var measurementValue = data.value[i].ObservationValue.Value;
             var unit = data.value[i].ObservationValue.UnitOfMeasurement
             var feature = data.value[i].FeatureOfInterest;
+            var observedProperty = properties[data.value[0].ObservationValue.ObservedProperty.match(/\d+/)[0]];
 
             measurementValue = Math.round(measurementValue * 100)/100;
 
-            var row = table.insertRow(1);
+            var row = table.insertRow(-1);
             var cell1 = row.insertCell(0);
             var cell2 = row.insertCell(1);
             var cell3 = row.insertCell(2);
             var cell4 = row.insertCell(3);
             var cell5 = row.insertCell(4);
+            var cell6 = row.insertCell(5);
             cell1.innerHTML = date;
             cell2.innerHTML = time;
             cell3.innerHTML = measurementValue;
-            cell4.innerHTML = unit;
-            cell5.innerHTML = feature;
+            cell4.innerHTML = observedProperty;
+            cell5.innerHTML = unit;
+            cell6.innerHTML = feature;
           }
           $('#infoSensorModal').modal('show');
+           $('#infoSensorModalTitle').text("Sensor " + e.target.parentNode.id  + " historic data")
 
         },
         error:function(){
@@ -208,6 +218,7 @@ function getSensors(){
     var lon = data.value[0].Location.lon;
     var time = data.value[0].ResultTime;
     var unit = data.value[0].ObservationValue.UnitOfMeasurement;
+    var observedProperty = properties[data.value[0].ObservationValue.ObservedProperty.match(/\d+/)[0]];
 
     measurementValue = Math.round(measurementValue * 100)/100;
 
@@ -225,11 +236,11 @@ function getSensors(){
 
     marker.on('click', function(e) {
       var content = "<label> Longitude: " + e.latlng.lng + " </label>" + "<div></div>" + "<label> Latitude: " + e.latlng.lat + "</label><p></p>";
-      content += "<label>ID: " + id + " - Last Measurement: " + measurementValue + " "+ unit +"</label>";
+      content += "<label>Sensor: " + id + " - " + observedProperty + " - Last Measurement: " + measurementValue + " "+ unit +"</label>";
 
       for (i = 0; i < sensors_markers.length; i++){
         if(sensors_markers[i]._latlng.lat  == marker._latlng.lat && sensors_markers[i]._latlng.lng  == marker._latlng.lng && ids[i]!=id){
-          content += "<label> ID: "+ ids[i]+" - Last Measurement: " + measurements[i] + " " + units[i] + "</label><b></b>"
+          content += "<label> Sensor: "+ ids[i]+ " - " + observedProperty + " - Last Measurement: " + measurements[i] + " " + units[i] + "</label><b></b>"
         }
       }
       var popup = L.popup()
@@ -242,7 +253,7 @@ function getSensors(){
     var date = dateTime.split(" ")[0];
     var time = dateTime.split(" ")[1];
 
-    var row = table.insertRow(1);
+    var row = table.insertRow(-1);
     var cell1 = row.insertCell(0);
     var cell2 = row.insertCell(1);
     var cell3 = row.insertCell(2);
@@ -250,15 +261,18 @@ function getSensors(){
     var cell5 = row.insertCell(4);
     var cell6 = row.insertCell(5);
     var cell7 = row.insertCell(6);
+    var cell8 = row.insertCell(7);
     cell1.innerHTML = id;
     cell2.innerHTML = lat;
     cell3.innerHTML = lon;
     cell4.innerHTML = measurementValue;
-    cell5.innerHTML = data.value[0].ObservationValue.UnitOfMeasurement;
-    cell6.innerHTML = date;
-    cell7.innerHTML = time;
+    cell5.innerHTML = observedProperty;
+    cell6.innerHTML = data.value[0].ObservationValue.UnitOfMeasurement;
+    cell7.innerHTML = date;
+    cell8.innerHTML = time;
 
     row.setAttribute("id", id);
+    row.setAttribute("url", this.url);
 
     row.addEventListener('click', handleClickRow);
 
@@ -282,7 +296,7 @@ function getSensors(){
   // if(temperature == true)
   //   url += '?temperature='
 
-  $("#loading").show();
+  // $("#loading").show();
   // $.ajax({
   //       url: url,
   //       type: "GET",
@@ -382,8 +396,8 @@ searchTopBar.addEventListener('click', function() {
   document.getElementById("sensorsContent").style.display = "none";
   document.getElementById("expandButton").style.display = "none";
 
-  // document.getElementById("errorFooter").style.display = "none";
-  // document.getElementById("errorSearch").innerHTML=""
+  document.getElementById("errorFooter").style.display = "none";
+  document.getElementById("errorSearch").innerHTML=""
 
   $('#map').animate({
     height: '85%'
