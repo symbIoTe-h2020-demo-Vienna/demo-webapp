@@ -37,6 +37,9 @@ input[type="radio"], input[type="checkbox"] {
   background-color: #7E937D;
   color: white;
   display: none;
+  border-style: none;
+  border-radius: 0;
+  outline: none;
 }
 #popuplatlng {
   color: black;
@@ -66,17 +69,21 @@ input[type="radio"], input[type="checkbox"] {
   margin-bottom: 5%;
   width: auto;
   /*display:none;*/
-  height: 50%;
+  height: auto;
+
   overflow-y: auto;
   /*box-shadow: 0 0 10px rgba(0,0,0,0.5);*/
 }
-.modal-body {
-    max-height:500px;
+.modal-content {
+    /*max-height:700px;*/
+    /*width: 100%;*/
+    margin-left: -20%;
+    margin-right: -20%;
     overflow:auto;
 }
 #title {
   /*background-color: #E2F4E1;*/
-  padding-bottom: 5%;
+  padding-bottom: 3%;
   padding-left: 3%;
   height: 5%;
 }
