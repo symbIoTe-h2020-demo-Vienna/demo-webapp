@@ -74,12 +74,30 @@ input[type="radio"], input[type="checkbox"] {
   overflow-y: auto;
   /*box-shadow: 0 0 10px rgba(0,0,0,0.5);*/
 }
-.modal-content {
+#historicTable{
+  overflow-x: auto;
+  max-width: 100%;
+}
+@media screen and (min-width: 768px) {
+     .modal-dialog {
+       width: 800px; /* New width for default modal */
+     }
+     .modal-sm {
+       width: 350px; /* New width for small modal */
+     }
+ }
+ @media screen and (min-width: 992px) {
+     .modal-lg {
+       width: 950px; /* New width for large modal */
+     }
+ }
+.modal-dialog {
     /*max-height:700px;*/
-    /*width: 100%;*/
-    margin-left: -20%;
-    margin-right: -20%;
-    overflow:auto;
+    /*width: 800px;*/
+    /*margin-left: -10%;
+    margin-right: -10%;*/
+    /*overflow:auto;
+    margin: 30px auto;*/
 }
 #title {
   /*background-color: #E2F4E1;*/
