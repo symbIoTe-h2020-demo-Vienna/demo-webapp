@@ -1,11 +1,13 @@
 var map, featureList, boroughSearch = [], theaterSearch = [], museumSearch = [];
 
-var sensors_markers = Array();
-var measurements = Array();
-var ids = Array();
-var units = Array();
+var sensorsMarkers = Array();
+var sensorsName = Array();
+var platformsName = Array();
+var owners = Array();
 var coordinates = Array();
 var obsProperties = Array();
+var locations = Array();
+
 
 var search = Array();
 
@@ -47,8 +49,8 @@ var usgsImagery = L.layerGroup([L.tileLayer("http://basemap.nationalmap.gov/arcg
 })]);
 
 map = L.map("map", {
-  zoom: 3,
-  center: [48.208253, 16.3724584],
+  zoom: 4,
+  center: [47.079069, 16.189928],
   layers: [cartoLight],
   zoomControl: false,
   attributionControl: false
@@ -124,18 +126,17 @@ function expandMap (){
   if(document.getElementById('map').style.height == '85%'){
     var height = '50%';
     document.getElementById("expandButton").value="Expand Map";
-    var bounds = new L.LatLngBounds(coordinates);
-    map.fitBounds(bounds);
   }else{
     var height = '85%';
     document.getElementById("expandButton").value="Reduce Map";
-    var bounds = new L.LatLngBounds(coordinates);
-    map.fitBounds(bounds);
   }
   $('#map').animate({
     height: height
   }, 500, function() {
   });
+
+  var bounds = new L.LatLngBounds(coordinates);
+  map.fitBounds(bounds);
 }
 
 //  Handle the click in a row that opens a modal with ths historic of the sensor of the clicked line
@@ -143,50 +144,62 @@ function handleClickRow(e){
   var table = document.getElementById("historicTable");
 
   var table = $('#historicTable').DataTable();
-
   var rows = table.rows().remove().draw();
+
+  var row_url = "http://symbiote.man.poznan.pl/coreInterfaceApi/search/resource_url?resourceIds="+e.target.parentNode.id;
 
   $("#loading").show();
 
-  // console.log(e.target.parentNode.getAttribute('url'));
-
-  // var url = 'http://enviro5.ait.ac.at:8080/openUwedat-oData/DemoService.svc/Sensors(%27'+e.target.parentNode.id+'%27)/Observations?%24format=json';
-
-  var url = e.target.parentNode.getAttribute('url');
   $.ajax({
-        url: url,
+        url: row_url,
         type: "GET",
         dataType: "json",
         cache: false,
         success: function(data){
-          $("#loading").hide();
+          var name = e.target.parentNode.getAttribute('identification');
+          console.log(data[e.target.parentNode.id]);
+          object_url = data[e.target.parentNode.id]+"/Observations";
+          $.ajax({
+                url: object_url,
+                type: "GET",
+                dataType: "json",
+                cache: false,
+                success: function(data){
+                  $("#loading").hide();
 
-          for (var i = 0; i < data.value.length; i++){
+                  for (var i = 0; i < data.value.length; i++){
 
-            var dateTime = data.value[i].ResultTime.replace("T", " ").replace("Z", " ");
-            var date = dateTime.split(" ")[0];
-            var time = dateTime.split(" ")[1];
-            var measurementValue = data.value[i].ObservationValue.Value;
-            var unit = data.value[i].ObservationValue.UnitOfMeasurement
-            var feature = data.value[i].Location.name;
-            try{
-              var observedProperty = properties[data.value[i].ObservationValue.ObservedProperty.match(/\d+/)[0]];
-            }
-            catch(err){
-              var observedProperty = data.value[i].ObservationValue.ObservedProperty;
-            }
+                    var dateTime = data.value[i].ResultTime.replace("T", " ").replace("Z", " ");
+                    var date = dateTime.split(" ")[0];
+                    var time = dateTime.split(" ")[1];
+                    var measurementValue = data.value[i].ObservationValue.Value;
+                    var unit = data.value[i].ObservationValue.UnitOfMeasurement
+                    var feature = data.value[i].Location.name;
+                    try{
+                      var observedProperty = properties[data.value[i].ObservationValue.ObservedProperty.match(/\d+/)[0]];
+                    }
+                    catch(err){
+                      var observedProperty = data.value[i].ObservationValue.ObservedProperty;
+                    }
 
-            measurementValue = Math.round(measurementValue * 100)/100;
+                    measurementValue = Math.round(measurementValue * 100)/100;
 
-            var table = $('#historicTable').DataTable();
-            var row = table
-            .row.add( [ date, time, measurementValue, observedProperty, unit, feature ] )
-            .draw()
-            .node();
-          }
-          $('#infoSensorModal').modal('show');
-           $('#infoSensorModalTitle').text("Sensor " + e.target.parentNode.id  + " historic data")
+                    var table = $('#historicTable').DataTable();
+                    var row = table
+                    .row.add( [ date, time, measurementValue, observedProperty, unit, feature ] )
+                    .draw()
+                    .node();
+                  }
+                  $('#infoSensorModal').modal('show');
+                   $('#infoSensorModalTitle').text(name  + " historic data")
 
+                },
+                error:function(){
+                  $("#loading").hide();
+                  // Error code goes here.
+                  $('#errorModal').modal('show');
+                }
+            });
         },
         error:function(){
           $("#loading").hide();
@@ -198,121 +211,69 @@ function handleClickRow(e){
 
 // Remove data (sensors) from previous search
 function deleteSensor(){
-  for (var i = 0; i < sensors_markers.length; i++){
-    map.removeLayer(sensors_markers[i]);
+  for (var i = 0; i < sensorsMarkers.length; i++){
+    map.removeLayer(sensorsMarkers[i]);
   }
 }
 
 // Get the sensors
 function getSensors(){
-
-  // var searchForm = document.forms["searchForm"];
-
   function parseSensor(data) {
     $('#searchModal').modal('hide');
 
-    if (data.value.length != 0 && data.value[0].Location.lat != 0 && data.value[0].Location.lon !=0 && data.value[0].Location.lat != null && data.value[0].Location.lon !=null){
+    var marker = L.marker([data.locationLatitude, data.locationLongitude]).addTo(map);
 
-      var url = this.url.split("%27")
-      id = url[1];
+    var currentCoordinates = Array();
+    currentCoordinates.push(data.locationLatitude);
+    currentCoordinates.push(data.locationLongitude);
+    coordinates.push(currentCoordinates);
 
-      var measurementValue_0 = data.value[0].ObservationValue.Value;
-      var lat = data.value[0].Location.lat;
-      var lon = data.value[0].Location.lon;
-      var time = data.value[0].ResultTime;
-      var unit_0 = data.value[0].ObservationValue.UnitOfMeasurement;
+    // var bounds = new L.LatLngBounds(coordinates);
+    // map.fitBounds(bounds);
 
-      try{
-        var observedProperty_0 = properties[data.value[0].ObservationValue.ObservedProperty.match(/\d+/)[0]];
-      }
-      catch(err){
-        var observedProperty_0 = data.value[0].ObservationValue.ObservedProperty;
-      }
+    sensorsMarkers.push(marker);
+    sensorsName.push(data.name);
+    platformsName.push(data.platformName);
+    owners.push(data.owner);
+    obsProperties.push(data.observedProperties);
+    locations.push(data.locationName);
 
-      measurementValue_0 = Math.round(measurementValue_0 * 100)/100;
+    marker.on('click', function(e) {
+      var content = "<table class='table table-striped' cellspacing='0' <thead> <th>Longitude</th> <th>Latitude</th> </thead> <tbody> <tr> <td>" + e.latlng.lng + " </td> <td>" + e.latlng.lat + " </td> </tr></tbody></table> <p></p>"
+      content += "<table class='table table-hover table-striped' cellspacing='0'> <thead> <th>Sensor</th> <th>Platform</th> <th> Observed Properties </th> <th> Owner </th> <th> Location </th> </thead> <tbody> ";
 
-      var marker = L.marker([lat, lon]).addTo(map);
-
-      sensors_markers.push(marker);
-      measurements.push(measurementValue_0);
-      ids.push(id);
-      units.push(unit_0);
-      obsProperties.push(observedProperty_0);
-
-      var currentCoordinates = Array();
-      currentCoordinates.push(data.value[0].Location.lat);
-      currentCoordinates.push(data.value[0].Location.lon);
-      coordinates.push(currentCoordinates);
-
-      for (var i = 1; i<data.value.length; i++){
-        if (String(data.value[0].ResultTime) == String(data.value[i].ResultTime) && data.value[0].Location.lat ==  data.value[i].Location.lat && data.value[0].Location.lon == data.value[i].Location.lon){
-          var measurementValue = data.value[i].ObservationValue.Value;
-          var unit = data.value[i].ObservationValue.UnitOfMeasurement;
-
-          try{
-            var observedProperty = properties[data.value[i].ObservationValue.ObservedProperty.match(/\d+/)[0]];
-          }
-          catch(err){
-            var observedProperty = data.value[i].ObservationValue.ObservedProperty;
-          }
-          measurementValue = Math.round(measurementValue * 100)/100;
-
-          sensors_markers.push(marker);
-          measurements.push(data.value[i].ObservationValue.Value);
-          ids.push(id);
-          units.push(data.value[i].ObservationValue.UnitOfMeasurement);
-          obsProperties.push(observedProperty);
+      for (i = 0; i < sensorsMarkers.length; i++){
+        if(sensorsMarkers[i]._latlng.lat  == e.latlng.lat && sensorsMarkers[i]._latlng.lng  == e.latlng.lng){
+          content += "<tr><td>" + sensorsName[i] + "</td>" + "<td>" + platformsName[i] + "</td>" + "<td>" + obsProperties[i] + "</td>"+ "<td>" + owners[i] + "</td><td>"+ locations[i] + "</td></tr>"
         }
       }
+      content += "</tbody></table> <p></p>"
+      var popup = L.popup({maxHeight:500, maxWidth:800})
+       .setLatLng(e.latlng)
+       .setContent(content)
+       .openOn(map);
+    });
 
-      marker.on('click', function(e) {
-        var content = "<table class='table table-striped' cellspacing='0' <thead> <th>Longitude</th> <th>Latitude</th> </thead> <tbody> <tr> <td>" + e.latlng.lng + " </td> <td>" + e.latlng.lat + " </td> </tr></tbody></table> <p></p>"
-        content += "<table class='table table-hover table-striped' cellspacing='0'> <thead> <th>Sensor</th> <th>Obs. property</th> <th> Last Measurement </th> <th> Unit </th> </thead> <tbody> ";
-        // console.log(e.latlng)
-        for (i = 0; i < sensors_markers.length; i++){
-          if(sensors_markers[i]._latlng.lat  == e.latlng.lat && sensors_markers[i]._latlng.lng  == e.latlng.lng){
-            total += 1;
-            content += "<tr><td>" + ids[i] + "</td>" + "<td>" + obsProperties[i] + "</td>" + "<td>" + measurements[i] + "</td>"+ "<td>" + units[i] + "</td></tr>"
-          }
-        }
-        // console.log(total)
-        content += "</tbody></table> <p></p>"
-        var popup = L.popup({maxHeight:500, maxWidth:500})
-         .setLatLng(e.latlng)
-         .setContent(content)
-         .openOn(map);
-      });
-
-      var bounds = new L.LatLngBounds(coordinates);
-      map.fitBounds(bounds);
-
-      var dateTime = time.replace("T", " ").replace("Z", " ");
-      var date = dateTime.split(" ")[0];
-      var time = dateTime.split(" ")[1];
-
-      var table = $('#sensorsTable').DataTable();
-      var row = table
-      .row.add( [ id, lon, lat, measurementValue_0, observedProperty_0, unit_0, date, time ] )
-      .draw()
-      .node();
-
-      row.setAttribute("id", id);
-      row.setAttribute("url", this.url);
-      row.addEventListener('click', handleClickRow);
-      // console.log(sensors_markers.length + " " +ids.length)
-  }
-
-};
+    var table = $('#sensorsTable').DataTable();
+    var row = table
+    .row.add( [data.name, data.locationLongitude, data.locationLatitude, data.locationAltitude, data.platformName, data.observedProperties, data.owner, data.locationName] )
+    .draw()
+    .node();
+    //
+    row.setAttribute("id", data.id);
+    row.setAttribute("identification", data.name);
+    row.addEventListener('click', handleClickRow);
+  };
 
   $(document).ajaxStop(function() {
     // LAST AJAX CALL Finishes
     $("#loading").hide();
 
-    var bounds = new L.LatLngBounds(coordinates);
-    map.fitBounds(bounds);
+    // var bounds = new L.LatLngBounds(coordinates);
+    // map.fitBounds(bounds);
 
   });
-  var url = 'http://62.3.168.148:8201/';
+  var url = 'http://symbiote.man.poznan.pl/coreInterfaceApi/search/query';
   if ($('#platform_name').val())
     search.push("platform_name="+$('#platform_name').val())
 
@@ -335,7 +296,7 @@ function getSensors(){
     search.push("location_lat="+$('#latitude').val())
 
   if ($('#longitude').val())
-    search.push("location_lon="+$('#longitude').val())
+    search.push("location_long="+$('#longitude').val())
 
   if ($('#distance').val())
     search.push("max_distance="+$('#distance').val())
@@ -344,7 +305,7 @@ function getSensors(){
     search.push("observed_property="+$('#property').val())
 
   if (search.length != 0){
-    url += "query?"
+    url += "?"
     for (var i = 0; i <search.length; i++){
       url += search[i];
       if(i != search.length-1)
@@ -352,98 +313,38 @@ function getSensors(){
     }
   }
 
-  console.log(url);
-
-
-
-  //
-  // $("#loading").show();
-  // $.ajax({
-  //       url: url,
-  //       type: "GET",
-  //       dataType: "json",
-  //       cache: false,
-  //       success: function(data){
-  //         $.each(data, function( index, each ) {
-  //           console.log(index + " " + each)
-  //           // Enviar (POST) todos os ID's recebidos para ir buscar o url de cada um e depois passar cada um dos url ao parseSensor para ir buscar retirar os dados de cada sensor
-  //           // var idUrl = 'http://enviro5.ait.ac.at:8080/openUwedat-oData/DemoService.svc/Sensors(%27'+each.ID+'%27)/Observations?%24format=json';
-  //           // $.ajax({
-  //           //     url: idUrl,
-  //           //     type: "GET",
-  //           //     dataType: "json",
-  //           //     cache: false,
-  //               // success: parseSensor,  //fazer um for each para cada url (um url por ID devolvido na pesquisa) recebido no POST
-  //           //   });
-  //         });
-  //
-  //       },
-  //       error:function(){
-  //         // TODO add error message
-  //       }
-  //   });
-
-  $.each(test1, function(index, each ) {
-
-    // var url = 'http://enviro5.ait.ac.at:8080/openUwedat-oData/DemoService.svc/Sensors?%24format=json';
-    var url = each;
-    // var url ="http://161.53.19.121:8080/openiotRAP/Sensors?%24format=json"
-    $("#loading").show();
-    $.ajax({
-          url: url,
-          type: "GET",
-          dataType: "json",
-          cache: false,
-          success: function(data){
+  $("#loading").show();
+  $.ajax({
+        url: url,
+        type: "GET",
+        dataType: "json",
+        cache: false,
+        success: function(data){
+          if(data.length > 0){
+            search = [];
 
             $('#map').animate({
               height: '50%'
             }, 500, function() {
-              // Animation complete.
+
             });
+
             document.getElementById("errorFooter").style.display = "none";
-            if (each == "http://161.53.19.121:8080/openiotRAP/Sensors?%24format=json")
-              var link = 1;
-            else
-              var link = 2;
-            $.each(data.value, function( index, each ) {
-              if (link == 2)
-                var idUrl = 'http://enviro5.ait.ac.at:8080/openUwedat-oData/DemoService.svc/Sensors(%27'+each.ID+'%27)/Observations?%24format=json';
-              else
-                var idUrl = "http://161.53.19.121:8080/openiotRAP/Sensors(%27" + each.ID + "%27)/Observations"
-              $.ajax({
-                  url: idUrl,
-                  type: "GET",
-                  dataType: "json",
-                  cache: false,
-                  success: parseSensor,
-                  error: function(){
-                    document.getElementById("sensorsContent").style.display = "none";
-                    document.getElementById("expandButton").style.display = "none";
-
-                    $('#searchModal').modal('show');
-                    document.getElementById("errorFooter").style.display = "initial";
-                    document.getElementById("errorSearch").innerHTML="It was not possible to proceed with the search. Please try again."
-
-                    $('#map').animate({
-                      height: '85%'
-                    }, 500, function() {
-                      // Animation complete.
-                    });
-                    $("#loading").hide();
-                  }
-                });
-            });
 
             document.getElementById("sensorsContent").style.display = "initial";
             document.getElementById("expandButton").style.display = "initial";
 
-          },
-          error: function(){
+            $.each(data, function( index, each ) {
+              parseSensor(each);
+            });
+          }
+          else{
+            search = [];
+
             $('#searchModal').modal('show');
 
             document.getElementById("errorFooter").style.display = "initial";
-            document.getElementById("errorSearch").innerHTML="It was not possible to proceed with the search. Please try again."
+            document.getElementById("errorSearch").innerHTML="The search did not return any results."
             //
             document.getElementById("sensorsContent").style.display = "none";
             document.getElementById("expandButton").style.display = "none";
@@ -453,9 +354,26 @@ function getSensors(){
             }, 500, function() {
 
             });
-          },
-          // timeout:3000
-      });
+          }
+        },
+        error:function(){
+          // TODO add error message
+          search = [];
+
+          $('#searchModal').modal('show');
+
+          document.getElementById("errorFooter").style.display = "initial";
+          document.getElementById("errorSearch").innerHTML="It was not possible to proceed with the search. Please try again."
+          //
+          document.getElementById("sensorsContent").style.display = "none";
+          document.getElementById("expandButton").style.display = "none";
+
+          $('#map').animate({
+            height: '85%'
+          }, 500, function() {
+
+          });
+        }
     });
 }
 
@@ -479,19 +397,19 @@ searchModalButton.addEventListener('click', function() {
 
   var rows = table.rows().remove().draw();
 
-  // $('#map').animate({
-  //   height: '85%'
-  // }, 500, function() {
-  //   // Animation complete.
-  // });
+  $('#map').animate({
+    height: '85%'
+  }, 1000, function() {
+    // Animation complete.
+  });
 
   deleteSensor();
-  sensors_markers = [];
-  measurements = [];
-  ids = [];
-  units = [];
+  sensorsMarkers = [];
+  sensorsName = [];
+  platformsName = [];
   coordinates = [];
   obsProperties = [];
+  locations = [];
 
   getSensors();
 }, false);
