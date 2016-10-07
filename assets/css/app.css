@@ -61,6 +61,9 @@ input[type="radio"], input[type="checkbox"] {
   height: 85%;
   /*box-shadow: 0 0 10px rgba(0,0,0,0.5);*/
 }
+.clickable-row{
+  cursor: pointer;
+}
 #info {
   /*background-color: #E2F4E1;*/
   padding-left: 3%;

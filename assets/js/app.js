@@ -262,6 +262,7 @@ function getSensors(){
     //
     row.setAttribute("id", data.id);
     row.setAttribute("identification", data.name);
+    row.setAttribute("class", "clickable-row");
     row.addEventListener('click', handleClickRow);
   };
 
@@ -396,6 +397,8 @@ searchModalButton.addEventListener('click', function() {
   var table = $('#sensorsTable').DataTable();
 
   var rows = table.rows().remove().draw();
+
+  map.setView([47.079069, 16.189928], 4);
 
   $('#map').animate({
     height: '85%'
