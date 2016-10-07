@@ -273,6 +273,7 @@ function getSensors(){
     // var bounds = new L.LatLngBounds(coordinates);
     // map.fitBounds(bounds);
 
+
   });
   var url = 'http://symbiote.man.poznan.pl/coreInterfaceApi/search/query';
   if ($('#platform_name').val())
@@ -327,9 +328,8 @@ function getSensors(){
             $('#map').animate({
               height: '50%'
             }, 500, function() {
-
+              document.getElementById("expandButton").value="Expand Map";
             });
-
             document.getElementById("errorFooter").style.display = "none";
 
             document.getElementById("sensorsContent").style.display = "initial";
