@@ -157,7 +157,7 @@ function handleClickRow(e){
         cache: false,
         success: function(data){
           var name = e.target.parentNode.getAttribute('identification');
-          console.log(data[e.target.parentNode.id]);
+          // console.log(data[e.target.parentNode.id]);
           object_url = data[e.target.parentNode.id]+"/Observations";
           $.ajax({
                 url: object_url,
@@ -232,7 +232,6 @@ function setMarker(lat, lon){
 
     for (i = 0; i < sensorsMarkers.length; i++){
       if(sensorsMarkers[i]._latlng.lat  == e.latlng.lat && sensorsMarkers[i]._latlng.lng  == e.latlng.lng){
-        console.log(i +" "+sensorsName[i]+ " " + platformsName[i] + " " + owners[i])
         content += "<tr><td>" + sensorsName[i] + "</td>" + "<td>" + platformsName[i] + "</td>" + "<td>" + obsProperties[i] + "</td>"+ "<td>" + owners[i] + "</td><td>"+ locations[i] + "</td></tr>"
       }
     }
