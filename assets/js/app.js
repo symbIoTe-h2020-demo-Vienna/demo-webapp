@@ -222,13 +222,36 @@ function deleteSensor(){
   }
 }
 
+function setMarker(lat, lon){
+  var marker = L.marker([lat, lon]).addTo(map);
+  sensorsMarkers.push(marker);
+
+  marker.on('click', function(e) {
+    var content = "<table class='table table-striped' cellspacing='0' <thead> <th>Longitude</th> <th>Latitude</th> </thead> <tbody> <tr> <td>" + e.latlng.lng + " </td> <td>" + e.latlng.lat + " </td> </tr></tbody></table> <p></p>"
+    content += "<table class='table table-hover table-striped' cellspacing='0'> <thead> <th>Sensor</th> <th>Platform</th> <th> Observed Properties </th> <th> Owner </th> <th> Location </th> </thead> <tbody> ";
+
+    for (i = 0; i < sensorsMarkers.length; i++){
+      if(sensorsMarkers[i]._latlng.lat  == e.latlng.lat && sensorsMarkers[i]._latlng.lng  == e.latlng.lng){
+        console.log(i +" "+sensorsName[i]+ " " + platformsName[i] + " " + owners[i])
+        content += "<tr><td>" + sensorsName[i] + "</td>" + "<td>" + platformsName[i] + "</td>" + "<td>" + obsProperties[i] + "</td>"+ "<td>" + owners[i] + "</td><td>"+ locations[i] + "</td></tr>"
+      }
+    }
+    content += "</tbody></table> <p></p>"
+    var popup = L.popup({maxHeight:500, maxWidth:800})
+     .setLatLng(e.latlng)
+     .setContent(content)
+     .openOn(map);
+  });
+
+}
+
 // Get the sensors
 function getSensors(){
   function parseSensor(data) {
     $('#searchModal').modal('hide');
     // console.log(data)
     if(data.locationLatitude && data.locationLongitude){
-      var marker = L.marker([data.locationLatitude, data.locationLongitude]).addTo(map);
+
 
       var currentCoordinates = Array();
       currentCoordinates.push(data.locationLatitude);
@@ -238,28 +261,13 @@ function getSensors(){
       // var bounds = new L.LatLngBounds(coordinates);
       // map.fitBounds(bounds);
 
-      sensorsMarkers.push(marker);
+      owners.push(data.owner);
       sensorsName.push(data.name);
       platformsName.push(data.platformName);
-      owners.push(data.owner);
       obsProperties.push(data.observedProperties);
       locations.push(data.locationName);
 
-      marker.on('click', function(e) {
-        var content = "<table class='table table-striped' cellspacing='0' <thead> <th>Longitude</th> <th>Latitude</th> </thead> <tbody> <tr> <td>" + e.latlng.lng + " </td> <td>" + e.latlng.lat + " </td> </tr></tbody></table> <p></p>"
-        content += "<table class='table table-hover table-striped' cellspacing='0'> <thead> <th>Sensor</th> <th>Platform</th> <th> Observed Properties </th> <th> Owner </th> <th> Location </th> </thead> <tbody> ";
-
-        for (i = 0; i < sensorsMarkers.length; i++){
-          if(sensorsMarkers[i]._latlng.lat  == e.latlng.lat && sensorsMarkers[i]._latlng.lng  == e.latlng.lng){
-            content += "<tr><td>" + sensorsName[i] + "</td>" + "<td>" + platformsName[i] + "</td>" + "<td>" + obsProperties[i] + "</td>"+ "<td>" + owners[i] + "</td><td>"+ locations[i] + "</td></tr>"
-          }
-        }
-        content += "</tbody></table> <p></p>"
-        var popup = L.popup({maxHeight:500, maxWidth:800})
-         .setLatLng(e.latlng)
-         .setContent(content)
-         .openOn(map);
-      });
+      setMarker(data.locationLatitude, data.locationLongitude);
 
       // if (!data.Name)
       //   name = "unknown"
@@ -281,6 +289,15 @@ function getSensors(){
       row.setAttribute("class", "clickable-row");
       row.addEventListener('click', handleClickRow);
     }
+
+    // console.log("SENSORS MARKER "+sensorsMarkers.length);
+    // console.log("SENSORS NAME "+sensorsName.length);
+    // console.log("PLATFORMS NAME "+platformsName.length);
+    // console.log("OWNERS "+owners.length);
+    // console.log("COORDINATES "+coordinates.length);
+    // console.log("PROPERTIES "+obsProperties.length);
+    // console.log("LOCATIONS "+locations.length);
+
   };
 
   $(document).ajaxStop(function() {
@@ -480,6 +497,7 @@ searchModalButton.addEventListener('click', function() {
   coordinates = [];
   obsProperties = [];
   locations = [];
+  owners = [];
 
   getSensors();
 }, false);
