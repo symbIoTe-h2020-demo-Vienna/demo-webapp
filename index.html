@@ -25,11 +25,15 @@
     <link rel="stylesheet" href="assets/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.css">
     <link rel="stylesheet" href="assets/css/app.css">
 
+
     <link rel="apple-touch-icon" sizes="76x76" href="assets/img/favicon-76.png">
     <link rel="apple-touch-icon" sizes="120x120" href="assets/img/favicon-120.png">
     <link rel="apple-touch-icon" sizes="152x152" href="assets/img/favicon-152.png">
     <link rel="icon" sizes="196x196" href="assets/img/favicon-196.png">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
+
+    <link rel="stylesheet" href="assets/css/leaflet-locationpicker.css" />
+
   </head>
 
   <body>
@@ -96,56 +100,74 @@
               <div class="form-group">
                 <label class="control-label col-sm-2">Platform name:</label>
                 <div class="col-sm-10">
-                  <input type="text" class="form-control" id="platform_name" placeholder="Enter platform name">
+                  <input type="text" class="form-control" id="platform_name" placeholder="Ex.: openUwedat">
                 </div>
               </div>
               <div class="form-group">
                 <label class="control-label col-sm-2">Name:</label>
                 <div class="col-sm-10">
-                  <input type="text" class="form-control" id="name" placeholder="Enter sensor name">
+                  <input type="text" class="form-control" id="name" placeholder="Ex.: Sensor 12">
                 </div>
               </div>
               <div class="form-group">
                 <label class="control-label col-sm-2">Owner:</label>
                 <div class="col-sm-10">
-                  <input type="text" class="form-control" id="owner" placeholder="Enter sensor owner">
+                  <input type="text" class="form-control" id="owner" placeholder="Ex.: AIT">
                 </div>
               </div>
-              <div class="form-group">
+              <!-- <div class="form-group">
                 <label class="control-label col-sm-2">ID:</label>
                 <div class="col-sm-10">
                   <input type="text" class="form-control" id="id" placeholder="Enter ID">
                 </div>
-              </div>
+              </div> -->
               <div class="form-group">
-                <label class="control-label col-sm-2">Description:</label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="description" placeholder="Enter description">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="control-label col-sm-2">Location:</label>
+                <label class="control-label col-sm-2">Location position:</label>
                 <div class="col-sm-10">
                   <div class="form-group row">
-                      <div class="col-sm-3">
-                          <input type="text" class="form-control" id="location_name" placeholder="Name">
-                      </div>
-                      <div class="col-sm-3">
+                    <div class="col-sm-3">
+                      <!-- <input id="geoloc" type="text" value="" /> -->
+                      <button type="button" id="geoloc" class="btn btn-secondary"> Pick location on map</button>
+                    </div>
+                    <!-- <div class="col-sm-3">
+                      <p></p>
+                      <input type="range"  min="0" max="10000"/>
+                    </div> -->
+                    <!-- <div class="col-sm-3" id="mapPicker">
+
+                    </div> -->
+                      <!-- <div class="col-sm-3">
                           <input type="text" class="form-control" id="latitude" placeholder="Latitude">
                       </div>
                       <div class="col-sm-3">
                           <input type="text" class="form-control" id="longitude" placeholder="Longitude">
-                      </div>
-                      <div class="col-sm-3">
-                          <input type="text" class="form-control" id="distance" placeholder="Distance (m)">
+                      </div> -->
+                      <div class="col-sm-4">
+                          <input type="text" class="form-control" id="distance" placeholder="Radius(m) (ex.:10000)">
                       </div>
                   </div>
                 </div>
               </div>
               <div class="form-group">
+                <label class="control-label col-sm-2">Location name:</label>
+                <div class="col-sm-10">
+                  <div class="form-group row">
+                      <div class="col-sm-3">
+                          <input type="text" class="form-control" id="location_name" placeholder="Ex.: Malta">
+                      </div>
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="form-group">
+                <label class="control-label col-sm-2">Description:</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="description" placeholder="Enter description">
+                </div>
+              </div> -->
+              <div class="form-group">
                 <label class="control-label col-sm-2" for="owner">Observed property:</label>
                 <div class="col-sm-10">
-                  <input type="text" class="form-control" id="property" placeholder="Enter observed property">
+                  <input type="text" class="form-control" id="property" placeholder="Ex.: Temperature">
                 </div>
               </div>
             </form>
@@ -237,5 +259,6 @@
     <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.min.js"></script>
     <script src="assets/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.js"></script>
     <script src="assets/js/app.js"></script>
+    <script src="assets/js/leaflet-locationpicker.js"></script>
   </body>
 </html>

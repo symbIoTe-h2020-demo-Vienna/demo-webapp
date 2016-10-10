@@ -1,4 +1,4 @@
-var map, featureList, boroughSearch = [], theaterSearch = [], museumSearch = [];
+var map, featureList;
 
 var sensorsMarkers = Array();
 var sensorsName = Array();
@@ -220,7 +220,7 @@ function deleteSensor(){
 function getSensors(){
   function parseSensor(data) {
     $('#searchModal').modal('hide');
-
+    console.log(data)
     var marker = L.marker([data.locationLatitude, data.locationLongitude]).addTo(map);
 
     var currentCoordinates = Array();
@@ -294,11 +294,22 @@ function getSensors(){
   if ($('#location_name').val())
     search.push("location_name="+$('#location_name').val())
 
-  if ($('#latitude').val())
-    search.push("location_lat="+$('#latitude').val())
+  // if ($('#latitude').val())
+  //   search.push("location_lat="+$('#latitude').val())
+  //
+  // if ($('#longitude').val())
+  //   search.push("location_long="+$('#longitude').val())
 
-  if ($('#longitude').val())
-    search.push("location_long="+$('#longitude').val())
+  if($('#geoloc').val()){
+    var res = $('#geoloc').val().split(",");
+    var latitude = res[0].toString();
+    var longitude = res[1].toString();
+
+    search.push("location_lat="+latitude)
+    search.push("location_long="+longitude)
+
+    console.log(res[0])
+  }
 
   if ($('#distance').val())
     search.push("max_distance="+$('#distance').val())
@@ -383,9 +394,40 @@ function getSensors(){
 // Show modal for search
 searchTopBar.addEventListener('click', function() {
   $('#searchModal').modal('show');
+  map.closePopup();
 
   document.getElementById("errorFooter").style.display = "none";
   document.getElementById("errorSearch").innerHTML=""
+
+  if($('#geoloc').val()){
+    $("#geoloc").val("");
+  }
+  $('#geoloc').leafletLocationPicker();
+
+  if ($('#platform_name').val())
+    $('#platform_name').val("")
+
+  if ($('#owner').val())
+    $('#owner').val("")
+
+  if ($('#name').val())
+    $('#owner').val("")
+
+  if ($('#id').val())
+    $('#id').val("")
+
+  if ($('#description').val())
+    $('#description').val("")
+
+  if ($('#location_name').val())
+    $('#location_name').val()
+
+  if ($('#distance').val())
+    $('#distance').val("")
+
+  if ($('#property').val())
+    $('#property').val("")
+
 }, false);
 
 
@@ -393,6 +435,8 @@ searchTopBar.addEventListener('click', function() {
 searchModalButton.addEventListener('click', function() {
   document.getElementById("sensorsContent").style.display = "none";
   document.getElementById("expandButton").style.display = "none";
+
+  $(".leaflet-locpicker-map" ).hide();
 
   var table = $('#sensorsTable').DataTable();
 
@@ -421,6 +465,8 @@ searchModalButton.addEventListener('click', function() {
 // ----- DOCUMENT READY -----
 $(document).on("ready", function () {
   $("#loading").hide();
+
+  $('#geoloc').leafletLocationPicker();
 
   $('#searchModal').modal('show');
 

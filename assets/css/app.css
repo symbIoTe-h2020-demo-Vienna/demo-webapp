@@ -44,6 +44,19 @@ input[type="radio"], input[type="checkbox"] {
 #popuplatlng {
   color: black;
 }
+#geoloc{
+  background-color: rgba(0,0,0,0.1);
+  outline: none;
+}
+.leaflet-locpicker-map{
+  z-index:10000;
+  /*width: 260px;*/
+  /*height: 200px;*/
+}
+.leaflet-container{
+  /*width: 250px;
+  height: 200px;*/
+}
 #searchTopBar{
   color: white;
 }
