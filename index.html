@@ -43,11 +43,11 @@
           <div class="navbar-icon-container">
             <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a>
           </div>
-          <a class="navbar-brand" href="#">symbIoTe</a>
+          <a class="navbar-brand" onclick="window.location.reload();">symbIoTe</a>
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a data-toggle="collapse" data-target=".navbar-collapse.in" id="searchTopBar" href="#"><i class="fa fa-search white"></i>&nbsp;&nbsp;Resources</a></li>
+            <li><a data-toggle="collapse" data-target=".navbar-collapse.in" id="searchTopBar"><i class="fa fa-search white"></i>&nbsp;&nbsp;Resources</a></li>
           </ul>
         </div><!--/.navbar-collapse -->
       </div>
@@ -115,59 +115,29 @@
                   <input type="text" class="form-control" id="owner" placeholder="Ex.: AIT">
                 </div>
               </div>
-              <!-- <div class="form-group">
-                <label class="control-label col-sm-2">ID:</label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="id" placeholder="Enter ID">
-                </div>
-              </div> -->
               <div class="form-group">
-                <label class="control-label col-sm-2">Location position:</label>
+                <label class="control-label col-sm-2" for="owner">Observed property:</label>
                 <div class="col-sm-10">
-                  <div class="form-group row">
-                    <div class="col-sm-3">
-                      <!-- <input id="geoloc" type="text" value="" /> -->
-                      <button type="button" id="geoloc" class="btn btn-secondary"> Pick location on map</button>
-                    </div>
-                    <!-- <div class="col-sm-3">
-                      <p></p>
-                      <input type="range"  min="0" max="10000"/>
-                    </div> -->
-                    <!-- <div class="col-sm-3" id="mapPicker">
-
-                    </div> -->
-                      <!-- <div class="col-sm-3">
-                          <input type="text" class="form-control" id="latitude" placeholder="Latitude">
-                      </div>
-                      <div class="col-sm-3">
-                          <input type="text" class="form-control" id="longitude" placeholder="Longitude">
-                      </div> -->
-                      <div class="col-sm-4">
-                          <input type="text" class="form-control" id="distance" placeholder="Radius(m) (ex.:10000)">
-                      </div>
-                  </div>
+                  <input type="text" class="form-control" id="property" placeholder="Ex.: Temperature">
                 </div>
               </div>
               <div class="form-group">
                 <label class="control-label col-sm-2">Location name:</label>
                 <div class="col-sm-10">
-                  <div class="form-group row">
-                      <div class="col-sm-3">
-                          <input type="text" class="form-control" id="location_name" placeholder="Ex.: Malta">
-                      </div>
-                  </div>
+                  <input type="text" class="form-control" id="location_name" placeholder="Ex.: Malta">
                 </div>
               </div>
-              <!-- <div class="form-group">
-                <label class="control-label col-sm-2">Description:</label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="description" placeholder="Enter description">
-                </div>
-              </div> -->
               <div class="form-group">
-                <label class="control-label col-sm-2" for="owner">Observed property:</label>
+                <label class="control-label col-sm-2">Location position:</label>
                 <div class="col-sm-10">
-                  <input type="text" class="form-control" id="property" placeholder="Ex.: Temperature">
+                  <div class="form-group row">
+                    <div class="col-sm-3">
+                      <button type="button" id="geoloc" class="btn btn-secondary" val=""> Pick location on map</button>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" id="distance" placeholder="Radius(m) (ex.:10000)">
+                    </div>
+                  </div>
                 </div>
               </div>
             </form>
@@ -176,7 +146,7 @@
               <label id="errorSearch" style="color:red;"></label>
             </div>
             <div class="modal-footer">
-              <button type="submit" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary" id="closeSearchModalButton" data-dismiss="modal">Close</button>
               <button type="submit" class="btn btn-primary" id="searchModalButton">Search</button>
             </div>
           </div>

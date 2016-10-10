@@ -165,7 +165,6 @@ function handleClickRow(e){
                 dataType: "json",
                 cache: false,
                 success: function(data){
-                  $("#loading").hide();
                   // console.log(data)
 
                   for (var i = 0; i < data.value.length; i++){
@@ -197,7 +196,8 @@ function handleClickRow(e){
                     .node();
                   }
                   $('#infoSensorModal').modal('show');
-                   $('#infoSensorModalTitle').text(name  + " historic data")
+                  $('#infoSensorModalTitle').text(name  + " historic data")
+                  $("#loading").hide();
 
                 },
                 error:function(){
@@ -501,6 +501,10 @@ searchModalButton.addEventListener('click', function() {
   getSensors();
 }, false);
 
+closeSearchModalButton.addEventListener('click', function() {
+  $(".leaflet-locpicker-map" ).hide();
+}, false);
+
 
 // ----- DOCUMENT READY -----
 $(document).on("ready", function () {
@@ -513,6 +517,7 @@ $(document).on("ready", function () {
   var searchButton = document.getElementById('searchButton');
   var searchTopBar = document.getElementById('searchTopBar');
   var searchModalButton = document.getElementById('searchModalButton');
+  var closeSearchModal = document.getElementById('closeSearchModalButton');
 
 });
 // Leaflet patch to make layer control scrollable on touch browsers

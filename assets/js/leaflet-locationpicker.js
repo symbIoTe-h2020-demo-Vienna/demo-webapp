@@ -195,6 +195,9 @@ TODO
 					latlng: self.location,
 					location: self.getLocation()
 				};
+
+				document.getElementById("distance").style.display = "initial";
+
 				self.$input.trigger($.extend(edata, {
 					type: 'changeLocation'
 				}));
