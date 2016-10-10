@@ -428,7 +428,8 @@ searchTopBar.addEventListener('click', function() {
   map.closePopup();
 
   document.getElementById("errorFooter").style.display = "none";
-  document.getElementById("errorSearch").innerHTML=""
+  document.getElementById("errorSearch").innerHTML="";
+  document.getElementById("distance").style.display = "none";
 
   if($('#geoloc').val()){
     $("#geoloc").val("");
