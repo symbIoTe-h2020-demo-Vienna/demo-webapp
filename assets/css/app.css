@@ -96,7 +96,7 @@ input[type="radio"], input[type="checkbox"] {
 }
 @media screen and (min-width: 768px) {
      .modal-dialog {
-       width: 800px; /* New width for default modal */
+       width: 1000px; /* New width for default modal */
      }
      .modal-sm {
        width: 350px; /* New width for small modal */

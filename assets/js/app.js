@@ -166,6 +166,7 @@ function handleClickRow(e){
                 cache: false,
                 success: function(data){
                   $("#loading").hide();
+                  // console.log(data)
 
                   for (var i = 0; i < data.value.length; i++){
 
@@ -174,7 +175,9 @@ function handleClickRow(e){
                     var time = dateTime.split(" ")[1];
                     var measurementValue = data.value[i].ObservationValue.Value;
                     var unit = data.value[i].ObservationValue.UnitOfMeasurement
-                    var feature = data.value[i].Location.name;
+                    var location = data.value[i].Location.name;
+                    var latitude = data.value[i].Location.lat
+                    var longitude = data.value[i].Location.lon
                     try{
                       var observedProperty = properties[data.value[i].ObservationValue.ObservedProperty.match(/\d+/)[0]];
                     }
@@ -184,9 +187,12 @@ function handleClickRow(e){
 
                     measurementValue = Math.round(measurementValue * 100)/100;
 
+                    if (location == null)
+                      location = "undefined";
+
                     var table = $('#historicTable').DataTable();
                     var row = table
-                    .row.add( [ date, time, measurementValue, observedProperty, unit, feature ] )
+                    .row.add( [ date, time, measurementValue, observedProperty, unit, location, latitude, longitude] )
                     .draw()
                     .node();
                   }
@@ -220,50 +226,61 @@ function deleteSensor(){
 function getSensors(){
   function parseSensor(data) {
     $('#searchModal').modal('hide');
-    console.log(data)
-    var marker = L.marker([data.locationLatitude, data.locationLongitude]).addTo(map);
+    // console.log(data)
+    if(data.locationLatitude && data.locationLongitude){
+      var marker = L.marker([data.locationLatitude, data.locationLongitude]).addTo(map);
 
-    var currentCoordinates = Array();
-    currentCoordinates.push(data.locationLatitude);
-    currentCoordinates.push(data.locationLongitude);
-    coordinates.push(currentCoordinates);
+      var currentCoordinates = Array();
+      currentCoordinates.push(data.locationLatitude);
+      currentCoordinates.push(data.locationLongitude);
+      coordinates.push(currentCoordinates);
 
-    // var bounds = new L.LatLngBounds(coordinates);
-    // map.fitBounds(bounds);
+      // var bounds = new L.LatLngBounds(coordinates);
+      // map.fitBounds(bounds);
 
-    sensorsMarkers.push(marker);
-    sensorsName.push(data.name);
-    platformsName.push(data.platformName);
-    owners.push(data.owner);
-    obsProperties.push(data.observedProperties);
-    locations.push(data.locationName);
+      sensorsMarkers.push(marker);
+      sensorsName.push(data.name);
+      platformsName.push(data.platformName);
+      owners.push(data.owner);
+      obsProperties.push(data.observedProperties);
+      locations.push(data.locationName);
 
-    marker.on('click', function(e) {
-      var content = "<table class='table table-striped' cellspacing='0' <thead> <th>Longitude</th> <th>Latitude</th> </thead> <tbody> <tr> <td>" + e.latlng.lng + " </td> <td>" + e.latlng.lat + " </td> </tr></tbody></table> <p></p>"
-      content += "<table class='table table-hover table-striped' cellspacing='0'> <thead> <th>Sensor</th> <th>Platform</th> <th> Observed Properties </th> <th> Owner </th> <th> Location </th> </thead> <tbody> ";
+      marker.on('click', function(e) {
+        var content = "<table class='table table-striped' cellspacing='0' <thead> <th>Longitude</th> <th>Latitude</th> </thead> <tbody> <tr> <td>" + e.latlng.lng + " </td> <td>" + e.latlng.lat + " </td> </tr></tbody></table> <p></p>"
+        content += "<table class='table table-hover table-striped' cellspacing='0'> <thead> <th>Sensor</th> <th>Platform</th> <th> Observed Properties </th> <th> Owner </th> <th> Location </th> </thead> <tbody> ";
 
-      for (i = 0; i < sensorsMarkers.length; i++){
-        if(sensorsMarkers[i]._latlng.lat  == e.latlng.lat && sensorsMarkers[i]._latlng.lng  == e.latlng.lng){
-          content += "<tr><td>" + sensorsName[i] + "</td>" + "<td>" + platformsName[i] + "</td>" + "<td>" + obsProperties[i] + "</td>"+ "<td>" + owners[i] + "</td><td>"+ locations[i] + "</td></tr>"
+        for (i = 0; i < sensorsMarkers.length; i++){
+          if(sensorsMarkers[i]._latlng.lat  == e.latlng.lat && sensorsMarkers[i]._latlng.lng  == e.latlng.lng){
+            content += "<tr><td>" + sensorsName[i] + "</td>" + "<td>" + platformsName[i] + "</td>" + "<td>" + obsProperties[i] + "</td>"+ "<td>" + owners[i] + "</td><td>"+ locations[i] + "</td></tr>"
+          }
         }
-      }
-      content += "</tbody></table> <p></p>"
-      var popup = L.popup({maxHeight:500, maxWidth:800})
-       .setLatLng(e.latlng)
-       .setContent(content)
-       .openOn(map);
-    });
+        content += "</tbody></table> <p></p>"
+        var popup = L.popup({maxHeight:500, maxWidth:800})
+         .setLatLng(e.latlng)
+         .setContent(content)
+         .openOn(map);
+      });
 
-    var table = $('#sensorsTable').DataTable();
-    var row = table
-    .row.add( [data.name, data.locationLongitude, data.locationLatitude, data.locationAltitude, data.platformName, data.observedProperties, data.owner, data.locationName] )
-    .draw()
-    .node();
-    //
-    row.setAttribute("id", data.id);
-    row.setAttribute("identification", data.name);
-    row.setAttribute("class", "clickable-row");
-    row.addEventListener('click', handleClickRow);
+      // if (!data.Name)
+      //   name = "unknown"
+      // else
+      name = data.name
+      if (!data.platformName)
+        platform = "undefined"
+      else
+        platform = data.platformName
+
+      var table = $('#sensorsTable').DataTable();
+      var row = table
+      .row.add( [name, data.locationLongitude, data.locationLatitude, data.locationAltitude, platform, data.observedProperties, data.owner, data.locationName] )
+      .draw()
+      .node();
+      //
+      row.setAttribute("id", data.id);
+      row.setAttribute("identification", data.name);
+      row.setAttribute("class", "clickable-row");
+      row.addEventListener('click', handleClickRow);
+    }
   };
 
   $(document).ajaxStop(function() {
@@ -307,8 +324,6 @@ function getSensors(){
 
     search.push("location_lat="+latitude)
     search.push("location_long="+longitude)
-
-    console.log(res[0])
   }
 
   if ($('#distance').val())
@@ -442,7 +457,15 @@ searchModalButton.addEventListener('click', function() {
 
   var rows = table.rows().remove().draw();
 
-  map.setView([47.079069, 16.189928], 4);
+  if($('#geoloc').val()){
+    var res = $('#geoloc').val().split(",");
+    var latitude = res[0].toString();
+    var longitude = res[1].toString();
+
+    map.setView([latitude, longitude], 4);
+  }
+  else
+    map.setView([47.079069, 16.189928], 4);
 
   $('#map').animate({
     height: '85%'
