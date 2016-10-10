@@ -427,6 +427,8 @@ searchTopBar.addEventListener('click', function() {
   $('#searchModal').modal('show');
   map.closePopup();
 
+  document.getElementById("resetLocation").style.display = "none";
+
   document.getElementById("errorFooter").style.display = "none";
   document.getElementById("errorSearch").innerHTML="";
   document.getElementById("distance").style.display = "none";
@@ -506,6 +508,19 @@ closeSearchModalButton.addEventListener('click', function() {
   $(".leaflet-locpicker-map" ).hide();
 }, false);
 
+resetLocation.addEventListener('click', function() {
+  if($('#geoloc').val()){
+    $("#geoloc").val("");
+    $('#geoloc').leafletLocationPicker();
+  }
+
+  if ($('#distance').val())
+    $('#distance').val("")
+
+  document.getElementById("distance").style.display = "none";
+  document.getElementById("resetLocation").style.display = "none";
+}, false);
+
 
 // ----- DOCUMENT READY -----
 $(document).on("ready", function () {
@@ -519,6 +534,7 @@ $(document).on("ready", function () {
   var searchTopBar = document.getElementById('searchTopBar');
   var searchModalButton = document.getElementById('searchModalButton');
   var closeSearchModal = document.getElementById('closeSearchModalButton');
+  var resetLocation = document.getElementById('resetLocation');
 
 });
 // Leaflet patch to make layer control scrollable on touch browsers

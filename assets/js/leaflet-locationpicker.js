@@ -197,6 +197,7 @@ TODO
 				};
 
 				document.getElementById("distance").style.display = "initial";
+				document.getElementById("resetLocation").style.display = "initial";
 
 				self.$input.trigger($.extend(edata, {
 					type: 'changeLocation'

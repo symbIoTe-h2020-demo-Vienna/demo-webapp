@@ -72,6 +72,13 @@ input[type="radio"], input[type="checkbox"] {
   /*border-color: #7E937D;*/
   color: white;
 }
+#resetLocation{
+  display:none;
+  background-color: rgba(255, 255, 255, 0);
+  text-decoration: underline;
+  font-style: italic;
+  outline: none;
+}
 #map {
   margin-left: 3%;
   margin-right: 3%;
